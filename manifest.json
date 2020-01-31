@@ -1,0 +1,32 @@
+{
+  "name": "lich coords speaker",
+  "version": "1.0.0",
+  "manifest_version": 2,
+  "description": "learn coords",
+  "background": {
+    "scripts": ["background.js"],
+    "persistent": true
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://www.lichess.org/*",
+        "http://www.lichess.org/*",
+        "https://lichess.org/*",
+        "http://lichess.org/*"
+      ],
+      "js": ["content_scripts/lich.js"]
+    }
+  ],
+  "web_accessible_resources": ["sounds/moves.mp3"],
+  "browser_action": {
+    "default_popup": "pages/popup/popup.html",
+    "default_icon": "icons/icon.png"
+  },
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "permissions": ["<all_urls>"]
+}

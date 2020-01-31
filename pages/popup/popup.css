@@ -1,0 +1,107 @@
+* {
+	box-sizing: border-box;
+}
+
+h1,
+h6 {
+	margin-top: 0;
+	margin-bottom: 0;
+}
+
+#header {
+	border-bottom: 1px solid #ddd;
+	padding-bottom: 0.5rem;
+}
+
+.title {
+	display: inline-block;
+}
+
+body {
+	min-width: 400px;
+}
+
+span {
+	font-weight: bold;
+	padding-left: 5px;
+}
+
+.online {
+	color: green;
+}
+
+.offline {
+	color: red;
+}
+
+#results {
+	border-spacing: 0;
+}
+
+#results thead {
+	font-weight: bold;
+}
+
+#results td {
+	border: 1px solid #e4e4e4;
+	padding: 4px;
+}
+
+#results .api-name {
+	min-width: 70px;
+	font-weight: bold;
+}
+
+#results .api-status {
+	font-weight: bold;
+}
+
+#results .api-action {
+	font-weight: bold;
+	text-align: center;
+}
+
+#results .api-url,
+#results .api-action {
+	cursor: pointer;
+}
+
+/* INPUTS SECTION  */
+.inputs {
+	border-top: 1px solid #dedede;
+	padding-top: 1rem;
+}
+
+.inputs button,
+.inputs input {
+	border: 1px solid #ccc;
+	height: 1.5rem;
+	--button-width: 80px;
+	--input-name-width: 80px;
+}
+
+.inputs input[type='text'] {
+	border-top-left-radius: 3px;
+	border-bottom-left-radius: 3px;
+	margin-right: -3px;
+	float: left;
+	padding: 0.5rem;
+}
+
+.inputs button {
+	border-top-right-radius: 3px;
+	border-bottom-right-radius: 3px;
+	background: #3ea255;
+	color: white;
+	font-weight: bold;
+	width: var(--button-width);
+	cursor: pointer;
+}
+
+.inputs #txtAPIName {
+	width: var(--input-name-width);
+}
+
+.inputs #txtAPI {
+	width: calc(99% - var(--button-width) - var(--input-name-width));
+}

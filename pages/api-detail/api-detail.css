@@ -1,0 +1,10 @@
+table {
+	padding: 1rem 0;
+}
+
+td:first-of-type {
+	font-weight: bold;
+}
+#btnDelete {
+	float: right;
+}
