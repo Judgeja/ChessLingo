@@ -3,17 +3,33 @@ let CURRENT_OPENING = "";
 let talker;
 
 window.onload = () => {
-  talker = new Talker();
-  say("A");
+  setTimeout(() => {
+    talker = new Talker();
+    readMoves(["a3"]);
+    readMoves(["Ba3"]);
+    readMoves(["Rxc4#"]);
+  }, 250);
+
   sendMessage("getData", data => {
     isSayOpenings = data.isSayOpenings;
     openings = data.openings;
-    // If openings is empty, then we should re-call a few times.. Should never be empty though..
-    setInterval(() => {
-      checkForUpdates();
-    }, 250);
+
+    // If openings is empty, then we should re-call a few times.. Probably should never be empty though?
+    // setInterval(() => {
+    //   checkForUpdates();
+    // }, 250);
   });
 };
+
+function sendMessage(type, cb, data) {
+  var message = {
+    source: "popup",
+    type: type,
+    data: data
+  };
+
+  chrome.runtime.sendMessage(message, cb);
+}
 
 function checkForUpdates() {
   let latestMoveList = getMoves();
@@ -22,8 +38,8 @@ function checkForUpdates() {
   }
   if (MOVES_STORE.length < latestMoveList.length) {
     let newMoves = latestMoveList.slice(MOVES_STORE.length);
-    //readMoves(newMoves);
-    updateCurrentOpening(latestMoveList);
+    readMoves(newMoves);
+    // updateCurrentOpening(latestMoveList);
     MOVES_STORE = latestMoveList;
   } else if (MOVES_STORE.length > latestMoveList.length) {
     console.log("its a new round");
@@ -66,18 +82,19 @@ function readMoves(moves) {
     moveToSpeech(move);
   }
 }
+
 function moveToSpeech(move) {
   if (move.toLowerCase() === "o-o" || move.toLowerCase() === "0-0") {
-    say("kingside castle");
+    talker.say("castle kingside");
   } else if (move.toLowerCase() === "o-o-o" || move.toLowerCase() === "0-0-0") {
-    say("Queenside castle");
+    talker.say("castle queenside");
   } else {
     let speech = "";
     for (let c of move) {
       speech += getSymbolAsWord(c) + " ";
     }
 
-    say(speech);
+    talker.say(speech + ".");
   }
 }
 
@@ -99,80 +116,63 @@ function getSymbolAsWord(c) {
       return "Check";
     case "#":
       return "Checkmate";
+    case "$":
+      return "Stalemate";
     default:
-      return c + ".";
+      return c;
   }
 }
 
-function say(txt) {
-  talker.say(txt);
-  // sendMessage("say", null, txt);
-  // setTimeout(() => {
-  //   window.speechSynthesis.speak(new SpeechSynthesisUtterance(txt));
-  // }, 0);
-  // // window.speechSynthesis.speak(new SpeechSynthesisUtterance(txt));
-  // console.log(txt);
-}
+// function updateCurrentOpening(latestMoveList) {
+//   let opening = openings.find(o => areArraysEqual(o.moves, latestMoveList));
 
-function updateCurrentOpening(latestMoveList) {
-  let opening = openings.find(o => areArraysEqual(o.moves, latestMoveList));
+//   if (opening != null && opening.name != CURRENT_OPENING) {
+//     CURRENT_OPENING = opening.name;
+//     say(opening.name);
+//   }
+// }
 
-  if (opening != null && opening.name != CURRENT_OPENING) {
-    CURRENT_OPENING = opening.name;
-    say(opening.name);
-  }
-}
-
-function areArraysEqual(arr, arr2) {
-  if (arr.length != arr2.length) {
-    return false;
-  }
-  for (let i = 0; i < arr.length; i++) {
-    if (arr[i] !== arr2[i]) {
-      return false;
-    }
-  }
-  return true;
-}
-function sendMessage(type, cb, data) {
-  var message = {
-    source: "popup",
-    type: type,
-    data: data
-  };
-
-  chrome.runtime.sendMessage(message, cb);
-}
+// function areArraysEqual(arr, arr2) {
+//   if (arr.length != arr2.length) {
+//     return false;
+//   }
+//   for (let i = 0; i < arr.length; i++) {
+//     if (arr[i] !== arr2[i]) {
+//       return false;
+//     }
+//   }
+//   return true;
+// }
 
 const WORDS = [
-  { word: "A", pos: 1 },
-  { word: "B", pos: 2 },
-  { word: "C", pos: 3 },
-  { word: "D", pos: 4 },
-  { word: "E", pos: 5 },
-  { word: "F", pos: 6 },
-  { word: "G", pos: 7 },
-  { word: "H", pos: 8 },
-  { word: "1", pos: 9 },
-  { word: "2", pos: 10 },
-  { word: "3", pos: 11 },
-  { word: "4", pos: 12 },
-  { word: "5", pos: 13 },
-  { word: "6", pos: 14 },
-  { word: "7", pos: 15 },
-  { word: "8", pos: 16 },
-  { word: "CAPTURES", pos: 17 },
-  { word: "CASTLES", pos: 18 },
-  { word: "KINGSIDE", pos: 19 },
-  { word: "QUEENSIDE", pos: 20 },
-  { word: "KNIGHT", pos: 21 },
-  { word: "BISHOP", pos: 22 },
-  { word: "ROOK", pos: 23 },
-  { word: "KING", pos: 24 },
-  { word: "QUEEN", pos: 25 },
-  { word: "CHECK", pos: 26 },
-  { word: "CHECKMATE", pos: 27 },
-  { word: "STALEMATE", pos: 28 }
+  { word: "A", pos: 0, length: 0.3 },
+  { word: "B", pos: 0.5, length: 0.3 },
+  { word: "C", pos: 1, length: 0.3 },
+  { word: "D", pos: 1.5, length: 0.3 },
+  { word: "E", pos: 2, length: 0.3 },
+  { word: "F", pos: 2.5, length: 0.3 },
+  { word: "G", pos: 3, length: 0.3 },
+  { word: "H", pos: 3.5, length: 0.3 },
+  { word: "1", pos: 4, length: 0.3 },
+  { word: "2", pos: 4.5, length: 0.3 },
+  { word: "3", pos: 5, length: 0.3 },
+  { word: "4", pos: 5.5, length: 0.3 },
+  { word: "5", pos: 6, length: 0.3 },
+  { word: "6", pos: 6.5, length: 0.3 },
+  { word: "7", pos: 7, length: 0.3 },
+  { word: "8", pos: 7.5, length: 0.3 },
+  { word: "CAPTURES", pos: 8, length: 1 },
+  { word: "CASTLES", pos: 9, length: 1 },
+  { word: "KINGSIDE", pos: 10, length: 1 },
+  { word: "QUEENSIDE", pos: 11, length: 1 },
+  { word: "KNIGHT", pos: 12, length: 1 },
+  { word: "BISHOP", pos: 13, length: 1 },
+  { word: "ROOK", pos: 14, length: 1 },
+  { word: "KING", pos: 15, length: 1 },
+  { word: "QUEEN", pos: 16, length: 1 },
+  { word: "CHECK", pos: 17, length: 1 },
+  { word: "STALEMATE", pos: 18, length: 1 },
+  { word: "CHECKMATE", pos: 19, length: 1 }
 ];
 
 class Talker {
@@ -190,29 +190,46 @@ class Talker {
 
   processQueue() {
     if (this.isSpeaking || this.playQueue.length == 0) {
-      // Let it return and we can process the next one on complete.
+      // Let it return anssd we can process the next one on complete.
       return;
     }
-    this.currentWord = this.getAudioFromWord(this.playQueue[0]);
+
+    let toSay = this.playQueue[0];
+    console.log("Going to say: " + toSay);
+
+    this.currentWord = this.getAudioFromWord(toSay);
     if (!!this.currentWord) {
       this.isSpeaking = true;
       this.audio.currentTime = this.currentWord.pos;
       this.audio.play();
+      console.log("playing", this.currentWord);
     } else {
-      window.speechSynthesis.speak(
-        new SpeechSynthesisUtterance(this.playQueue[0])
-      );
+      this.playQueue.splice(0, 1);
+      if (toSay === ".") {
+        setTimeout(x => {
+          this.processQueue();
+        }, 500);
+      } else {
+        console.log("** TRYING TO SAY BUT CANT: ", toSay);
+      }
+      //  else {
+      //   window.speechSynthesis.speak(new SpeechSynthesisUtterance(toSay));
+      // }
     }
+
     this.audio.ontimeupdate = e => {
-      // console.log(e);
       if (this.currentWord == null) {
-        console.warn("NO CURRENT WORD WHUUUT");
-        console.log("this.audio.currentTime", this.audio.currentTime);
-        console.log("e.currentTime", e.currentTime);
-        console.log("this.playQueue", this.playQueue);
         return;
       }
-      if (this.audio.currentTime >= this.currentWord.pos + 0.5) {
+      if (
+        this.audio.currentTime >=
+        this.currentWord.pos + this.currentWord.length
+      ) {
+        console.log(
+          "Just finishing saying",
+          this.currentWord,
+          this.playQueue[0]
+        );
         this.isSpeaking = false;
         this.playQueue.splice(0, 1);
         this.audio.pause();
@@ -222,7 +239,7 @@ class Talker {
   }
   say(text) {
     console.log("say: ", text);
-    this.playQueue.push(text.toUpperCase());
+    this.playQueue.push(...text.toUpperCase().split(" "));
     this.processQueue();
   }
   getAudioFromWord(word) {
